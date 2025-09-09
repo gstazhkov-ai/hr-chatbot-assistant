@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Bot Assistant</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 40px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
+        h1 { text-align: center; color: #2c3e50; }
+        textarea { width: 100%; padding: 15px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; margin-bottom: 20px; box-sizing: border-box; resize: vertical; min-height: 120px;}
+        button { width: 100%; padding: 15px; background-color: #3498db; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background-color 0.3s; }
+        button:hover { background-color: #2980b9; }
+        #response-area { margin-top: 30px; background-color: #ecf0f1; padding: 20px; border-radius: 8px; white-space: pre-wrap; font-size: 16px; line-height: 1.6; }
+        .spinner { display: none; margin: 20px auto; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Мои AI Ассистент для выбора времени собеседования</h1>
+        <p>HR пишет вопрос или готовые слоты и получает готовый ответ исходя из моих слотов в календаре.</p>
+        <textarea id="hr-message" placeholder="Например: Добрый день! Мы рассмотрели ваше резюме..."></textarea>
+        <button onclick="sendMessage()">Отправить сообщение</button>
+        <div class="spinner" id="loading-spinner"></div>
+        <div id="response-area" style="display:none;"></div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const messageInput = document.getElementById('hr-message');
+            const responseArea = document.getElementById('response-area');
+            const spinner = document.getElementById('loading-spinner');
+            const userMessage = messageInput.value;
+
+            if (!userMessage) {
+                alert('Пожалуйста, введите сообщение.');
+                return;
+            }
+
+            // Показываем спиннер и скрываем старый ответ
+            spinner.style.display = 'block';
+            responseArea.style.display = 'none';
+
+            try {
+                const response = await fetch('/process_message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка сервера: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                responseArea.textContent = data.reply;
+                responseArea.style.display = 'block';
+            } catch (error) {
+                console.error('Ошибка:', error);
+                responseArea.textContent = 'Не удалось получить ответ от сервера. Пожалуйста, проверьте консоль.';
+                responseArea.style.display = 'block';
+            } finally {
+                // Скрываем спиннер
+                spinner.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

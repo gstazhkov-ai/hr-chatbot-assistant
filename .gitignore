@@ -1,0 +1,14 @@
+.gitignore# Виртуальное окружение
+venv/
+
+# Кэш Python
+__pycache__/
+*.pyc
+
+# Секретный токен для доступа к Google Calendar
+# ЭТОТ ФАЙЛ НИ В КОЕМ СЛУЧАЕ НЕ ДОЛЖЕН ПОПАСТЬ НА GITHUB
+token.json
+credentials.json
+# Файлы IDE (опционально, но рекомендуется)
+.idea/
+.vscode/
